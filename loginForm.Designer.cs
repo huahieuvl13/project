@@ -36,7 +36,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtPass = new System.Windows.Forms.TextBox();
+            this.txtMatkhau = new System.Windows.Forms.TextBox();
             this.txtSDT = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -52,7 +52,7 @@
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.txtPass);
+            this.panel1.Controls.Add(this.txtMatkhau);
             this.panel1.Controls.Add(this.txtSDT);
             this.panel1.Location = new System.Drawing.Point(49, 43);
             this.panel1.Name = "panel1";
@@ -136,16 +136,17 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "BANKING";
             // 
-            // txtPass
+            // txtMatkhau
             // 
-            this.txtPass.ForeColor = System.Drawing.SystemColors.Window;
-            this.txtPass.Location = new System.Drawing.Point(213, 293);
-            this.txtPass.Multiline = true;
-            this.txtPass.Name = "txtPass";
-            this.txtPass.PasswordChar = '*';
-            this.txtPass.Size = new System.Drawing.Size(393, 24);
-            this.txtPass.TabIndex = 1;
-            this.txtPass.UseSystemPasswordChar = true;
+            this.txtMatkhau.ForeColor = System.Drawing.SystemColors.Window;
+            this.txtMatkhau.Location = new System.Drawing.Point(213, 293);
+            this.txtMatkhau.Multiline = true;
+            this.txtMatkhau.Name = "txtMatkhau";
+            this.txtMatkhau.PasswordChar = '*';
+            this.txtMatkhau.Size = new System.Drawing.Size(393, 24);
+            this.txtMatkhau.TabIndex = 1;
+            this.txtMatkhau.UseSystemPasswordChar = true;
+            this.txtMatkhau.TextChanged += new System.EventHandler(this.txtMatkhau_TextChanged);
             // 
             // txtSDT
             // 
@@ -185,7 +186,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtPass;
+        private System.Windows.Forms.TextBox txtMatkhau;
         private System.Windows.Forms.TextBox txtSDT;
         private System.Windows.Forms.Label lblRegis;
     }

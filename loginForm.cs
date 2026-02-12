@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,6 +15,7 @@ namespace project
 {
     public partial class LoginForm : Form
     {
+
         public LoginForm()
         {
             InitializeComponent();
@@ -71,66 +73,71 @@ namespace project
             this.Hide();
 
         }
+        private string HashPassword(string password)
+        {
+            SHA256 sha256 = SHA256.Create();
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
 
+            StringBuilder builder = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                builder.Append(b.ToString("x2"));
+            }
+
+            return builder.ToString();
+        }
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            string sdt = txtSDT.Text.Trim();
-            string pass = txtPass.Text; // don't trim yet so whitespace can be detected
+            // 1️⃣ Lấy dữ liệu từ TextBox
 
-            if (string.IsNullOrWhiteSpace(sdt))
+            string sdt = txtSDT.Text;
+            string matKhau = txtMatkhau.Text;
+
+            // 2️⃣ Kiểm tra nhập đủ chưa
+            if (sdt == "" || matKhau == "")
             {
-                MessageBox.Show("Vui lòng nhập số điện thoại");
-                txtSDT.Focus();
+                MessageBox.Show("Vui lòng nhập đầy đủ SĐT và mật khẩu");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(pass))
-            {
-                MessageBox.Show("Vui lòng nhập mật khẩu");
-                txtPass.Focus();
-                return;
-            }
-
-            pass = pass.Trim();
+            // 3️⃣ Hash mật khẩu
+            string passwordHash = HashPassword(matKhau);
             string connStr = ConfigurationManager
-            .ConnectionStrings[".NET BANKING"]
-            .ConnectionString;
+    .ConnectionStrings[".NET BANKING"]
+    .ConnectionString;
 
-            string sql = @"SELECT FullName, [Password] FROM USERS WHERE SDT = @sdt";
-            string fullName = "";
-
+            // 4️⃣ Kết nối CSDL và kiểm tra đăng nhập
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                cmd.Parameters.AddWithValue("@sdt", sdt);
                 conn.Open();
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        if (!reader.Read())
-                        {
-                            MessageBox.Show("Số điện thoại hoặc mật khẩu không đúng");
-                            return;
-                        }
 
-                        fullName = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
-                        string storedPassword = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                string sql = @"SELECT ID,FullName 
+                       FROM Users
+                       WHERE PhoneNumber = @Phone
+                       AND PasswordHash = @PasswordHash";
 
-                        // Verify provided password against stored hash
-                        bool ok = VerifyHashedPassword(storedPassword, pass);
-                        if (!ok)
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Phone", sdt);
+                cmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
                 {
-                    MessageBox.Show("Số điện thoại hoặc mật khẩu không đúng");
-                    return;
+                    int userId = reader.GetInt32(0);
+                    string fullName = reader.GetString(1);
+                    MessageBox.Show($"Đăng nhập thành công! Xin chào {fullName}");
+                    FormDashboard dashboard = new FormDashboard(userId);
+                    dashboard.Show();
+                    this.Hide();
+                }
+                else
+                {
+                    MessageBox.Show("Đăng nhập thất bại! Vui lòng kiểm tra lại SĐT và mật khẩu.");
                 }
 
-                MessageBox.Show("Đăng nhập thành công");
-                FormDashboard dashboard = new FormDashboard(fullName);
-                dashboard.Show();
-                this.Hide();
+  
             }
         }
-
         private void txtUser_TextChanged(object sender, EventArgs e)
         {
 
@@ -145,6 +152,11 @@ namespace project
         }
 
         private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtMatkhau_TextChanged(object sender, EventArgs e)
         {
 
         }

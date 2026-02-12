@@ -2,11 +2,11 @@ C:\Users\LENOVO\source\repos\project\project\bin\Debug\project.exe.config
 C:\Users\LENOVO\source\repos\project\project\bin\Debug\project.exe
 C:\Users\LENOVO\source\repos\project\project\bin\Debug\project.pdb
 C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.csproj.AssemblyReference.cache
+C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.FormDashboard.resources
+C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.LoginForm.resources
+C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.FormRegister.resources
 C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.Properties.Resources.resources
 C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.csproj.GenerateResource.cache
 C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.csproj.CoreCompileInputs.cache
 C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.exe
 C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.pdb
-C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.FormRegister.resources
-C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.LoginForm.resources
-C:\Users\LENOVO\source\repos\project\project\obj\Debug\project.FormDashboard.resources

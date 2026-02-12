@@ -1,216 +1,207 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
-namespace project
-{
-    public partial class FormDashboard : System.Windows.Forms.Form
+using System.Data.SqlTypes;
+using System.Windows.Forms;
 
+namespace project   // ⚠️ ĐỔI CHO ĐÚNG NAMESPACE CỦA BẠN
+{
+    public partial class FormDashboard : Form
     {
-        private string _fullName;
-        decimal balance = 1000000;//1trieu vnd
-        
-        public FormDashboard(string fullName)
-        {          
-            InitializeComponent();
-            _fullName = fullName;
-            lblWelcome.Text = "Xin chào, " + _fullName;
-        }
-        private void LoadHistoryFromDB()
+        private string _tenNguoiDung;
+        private int _userId;
+        public FormDashboard(int userId)
         {
+            InitializeComponent();
+            _userId = userId;
+            this.Load += FormDashboard_Load;
+        }
+        private void LoadHistory()
+        {
+            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string sql = @"SELECT TransDate as 'Ngày giao dịch', ToAccount as 'Đến tài khoản',
+                                        Amount as 'Số tiền', Note as 'Mô tả' FROM TRANSACTIONS
+WHERE UserId = @UserId ORDER BY TransDate desc";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@UserId",_userId);
+
+                SqlDataAdapter Da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                Da.Fill(dt);
+                dgvHistory.DataSource = dt;
+                dgvHistory.Columns["Số tiền"].DefaultCellStyle.Format = "N0";
+                dgvHistory.Columns["Số tiền"].DefaultCellStyle.Alignment =
+                    DataGridViewContentAlignment.MiddleRight;
+            }
+        }
+        private void LoadAccountInfo()
+        {
+            MessageBox.Show("_userId = " + _userId); // test, xong xoá
+
+            string connStr = ConfigurationManager
+                .ConnectionStrings[".NET BANKING"].ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string sql = @"SELECT u.FullName, a.AccountNumber, a.Balance
+                       FROM Users u
+                       JOIN Accounts a ON u.Id = a.UserId
+                       WHERE a.UserId = @UserId";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@UserId", _userId);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    string fullName = reader["FullName"].ToString();
+                    string accountNumber = reader["AccountNumber"].ToString();
+                    decimal balance = (decimal)reader["Balance"];
+
+                    lblXinchao.Text = "Xin chào, " + fullName;
+                    lblHienthiSTK.Text = accountNumber;
+                    lblChuTK.Text = fullName;
+                    lblHienthisodu.Text = balance.ToString("N0") + " VNĐ";
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy tài khoản cho user này");
+                }
+            }
+        }
+
+        private void HideAllPanels()
+        {
+            panelAccount.Visible = false;
+            panelTransfer.Visible = false;
+            panelHistory.Visible = false;
+        }
+
+        private void btnTaiKhoan_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelAccount.Visible = true;
+        }
+
+        private void btnChuyenTien_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelTransfer.Visible = true;
+        }
+
+        private void btnLichSu_Click(object sender, EventArgs e)
+        {
+            panelHistory.BringToFront();
+            LoadHistory();
+        }
+
+        private void btnDangXuat_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnChuyenTien_Click_1(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelTransfer.Visible = true;
+        }
+
+        private void btnLichSu_Click_1(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelHistory.Visible = true;
+        }
+
+        private void FormDashboard_Load(object sender, EventArgs e)
+        {
+            LoadAccountInfo();
+        }
+
+        private void panelAccountInfo_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void btnXacNhanChuyen_Click(object sender, EventArgs e)
+        {
+            string stkNhan = txtSoTKNhan.Text;
+            decimal soTien;
+            if(!decimal.TryParse(txtSoTien.Text, out soTien))
+            {
+                MessageBox.Show("Số tiền không hợp lệ");
+                return;
+            }
             string connStr = ConfigurationManager
                 .ConnectionStrings[".NET BANKING"]
                 .ConnectionString;
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "SELECT TransDate,TransType,Amount,Note from Transactions";
-                SqlCommand cmd = new SqlCommand(sql, conn);
                 conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+                SqlTransaction tran = conn.BeginTransaction();
+
+                try
                 {
-                    Convert.ToDateTime(reader["TransDate"]).ToString("dd/MM/yyyy HH:mm");
-                    reader["TransType"].ToString();
-                    Convert.ToDecimal(reader["Amount"]).ToString("N0");
-                    reader["Note"].ToString();
+                    string sqlBalance = @"SELECT BALANCE FROM Accounts WHERE
+                                        UserId = @Userid";
+                    SqlCommand cmdBalance = new SqlCommand(sqlBalance, conn, tran);
+                    cmdBalance.Parameters.AddWithValue("@UserId", _userId);
+                    decimal soDuhienTai = (decimal)cmdBalance.ExecuteScalar();
+                    if (soDuhienTai < soTien)
+                    {
+                        MessageBox.Show("Số dư không đủ để thực hiện giao dịch");
+                        tran.Rollback();
+                        return;
+
+                    }
+                    string sqlCheck = @"SELECT UserId from Accounts where
+                                        AccountNumber = @STK";
+                    SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, tran);
+                    cmdCheck.Parameters.AddWithValue("@STK", stkNhan);
+                    object toUserIdObject = cmdCheck.ExecuteScalar();
+                    if(toUserIdObject == null)
+                    {
+                        MessageBox.Show ("Số tài khoản nhận không tồn tại");
+                        tran.Rollback();
+                        return;
+                    }
+                    object toUserId = (int)toUserIdObject;
+
+                    string sqlTru = @"UPDATE ACCOUNTS 
+                                        SET BALANCE = BALANCE - @Amount
+                                         WHERE UserId = @UserId";
+                    SqlCommand cmdTru = new SqlCommand(sqlTru, conn, tran);
+                    cmdTru.Parameters.AddWithValue("@Amount", soTien);
+                    cmdTru.Parameters.AddWithValue("@UserId", _userId);
+                    cmdTru.ExecuteNonQuery();
+                    
+                    string sqlCong = @"UPDATE ACCOUNTS SET BALANCE = BALANCE + @AMOUNT
+                                        WHERE AccountNumber = @STK";
+                    SqlCommand cmdCong = new SqlCommand(sqlCong, conn, tran);
+                    cmdCong.Parameters.AddWithValue("@Amount", soTien);
+                    cmdCong.Parameters.AddWithValue("@toUserId", toUserId);
+                    cmdCong.ExecuteNonQuery();
+
+                    tran.Commit();
+                    MessageBox.Show("Đã chuyển tiền thành công cho số tài khoản : " + stkNhan);
+                    LoadAccountInfo();
+                }
+                catch
+                {
+                    tran.Rollback();
+                    MessageBox.Show("Chuyển tiền thất bại");
                 }
             }
         }
-        private void InsertTransaction(decimal amount, string note)
-        {
 
-            string connStr = ConfigurationManager
-    .ConnectionStrings[".NET BANKING"]
-    .ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                string sql = @"INSERT INTO Transactions(TransDate,TransType,Amount,
-Note) VALUES (@date,@type,@amount,@note)";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@date", DateTime.Now);
-                cmd.Parameters.AddWithValue("@type", "Chuyển tiền");
-                cmd.Parameters.AddWithValue("@amount", 500000);
-                cmd.Parameters.AddWithValue("@note", "Tiền ăn");
-                conn.Open();
-                cmd.ExecuteNonQuery();
-            }
-            
-        }
-
-        private void Form2(object sender, EventArgs e)
-        {
-            panelHistory.Visible = true;
-            dgvHistory.Rows.Add(DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                "Chuyển tiền", "500,000", "Test chức năng chuyển");
-            UpdateAccountInfo();
-            LoadHistoryFromDB();
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-            panelHistory.Visible = true;
-            panelAccount.Visible = false;
-            panelTransfer.Visible = false;
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            Close();
-
-        }
-
-        private void label12_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnChuyenTien_Click(object sender, EventArgs e)
-        {
-            panelTransfer.Visible = true;
-            panelHistory.Visible = false;
-            panelAccount.Visible = false;
-        }
-        private void btnAccount(object sender, EventArgs e)
-        {
-            panelTransfer.Visible = false;
-            panelHistory.Visible = false;
-            panelAccount.Visible = true;
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panelHistory_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void dgvHistory_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-        private void LoadHistory()
-        {
-            //dgvHistory.Rows.Clear();
-            //foreach (Transaction t in transactions)
-            //{
-            //    dgvHistory.Rows.Add(t.Date.ToString("dd/MM/yyyy HH:mm"),
-            //        t.Type,
-            //        t.Amount.ToString("N0"),
-            //        t.Note);
-            //}
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panelAccount_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void label15_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnConfirmTransfer_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtReceiver.Text)
-                || string.IsNullOrWhiteSpace(txtAmount.Text))
-            {
-                MessageBox.Show("Vui lòng nhập số tài khoản người nhận hoặc số tiền");
-                return;
-            }
-            if (!decimal.TryParse(txtAmount.Text, out decimal amount))
-            {
-                MessageBox.Show("Số tiền không hợp lệ");
-                return;
-            }
-            if (amount <= 0)
-            {
-                MessageBox.Show("Số tiền phải lớn hơn 0");
-                return;
-            }
-            if (amount > balance)
-            {
-                MessageBox.Show("Số dư không đủ");
-                return;
-            }
-            balance -= amount;
-            InsertTransaction(amount, "Chuyển đến số tài khoản " + txtReceiver.Text);
-            //transactions.Add(new Transaction
-            //{
-            //    Date = DateTime.Now,
-            //    Type = "Chuyển tiền",
-            //    Amount = amount,
-            //    Note = "Chuyển đến số tài khoản " + txtReceiver.Text
-            //});
-            UpdateAccountInfo();
-            LoadHistory();
-            txtAmount.Clear();
-            txtReceiver.Clear();
-            MessageBox.Show("Đã chuyển thành công");
-        }
-        private void UpdateAccountInfo()
-        {
-            lblBalance.Text = balance.ToString("N0") + " VND";
-            lblSoTk.Text = "123456789";
-            lblTendn.Text = "HuaHieu";
-        }
-
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label16_Click(object sender, EventArgs e)
+        private void btnNapTien_Click(object sender, EventArgs e)
         {
 
         }
