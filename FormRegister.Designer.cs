@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.panelRegister = new System.Windows.Forms.Panel();
+            this.txtXacnhanmk = new System.Windows.Forms.TextBox();
+            this.txtMatkhau = new System.Windows.Forms.TextBox();
+            this.btnDangky = new System.Windows.Forms.Button();
             this.txtSDT = new System.Windows.Forms.TextBox();
             this.txtCCCD = new System.Windows.Forms.TextBox();
             this.txtFullName = new System.Windows.Forms.TextBox();
@@ -39,14 +42,12 @@
             this.lblLogin = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.btnDangky = new System.Windows.Forms.Button();
-            this.txtMatkhau = new System.Windows.Forms.TextBox();
-            this.txtXacnhanmk = new System.Windows.Forms.TextBox();
             this.panelRegister.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelRegister
             // 
+            this.panelRegister.BackColor = System.Drawing.Color.White;
             this.panelRegister.Controls.Add(this.txtXacnhanmk);
             this.panelRegister.Controls.Add(this.txtMatkhau);
             this.panelRegister.Controls.Add(this.btnDangky);
@@ -61,10 +62,41 @@
             this.panelRegister.Controls.Add(this.label2);
             this.panelRegister.Controls.Add(this.label1);
             this.panelRegister.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panelRegister.Location = new System.Drawing.Point(186, 12);
+            this.panelRegister.Location = new System.Drawing.Point(288, 12);
             this.panelRegister.Name = "panelRegister";
             this.panelRegister.Size = new System.Drawing.Size(455, 566);
             this.panelRegister.TabIndex = 0;
+            // 
+            // txtXacnhanmk
+            // 
+            this.txtXacnhanmk.Location = new System.Drawing.Point(46, 413);
+            this.txtXacnhanmk.Multiline = true;
+            this.txtXacnhanmk.Name = "txtXacnhanmk";
+            this.txtXacnhanmk.PasswordChar = '*';
+            this.txtXacnhanmk.Size = new System.Drawing.Size(366, 33);
+            this.txtXacnhanmk.TabIndex = 15;
+            // 
+            // txtMatkhau
+            // 
+            this.txtMatkhau.Location = new System.Drawing.Point(42, 334);
+            this.txtMatkhau.Multiline = true;
+            this.txtMatkhau.Name = "txtMatkhau";
+            this.txtMatkhau.PasswordChar = '*';
+            this.txtMatkhau.Size = new System.Drawing.Size(370, 33);
+            this.txtMatkhau.TabIndex = 14;
+            // 
+            // btnDangky
+            // 
+            this.btnDangky.BackColor = System.Drawing.Color.Teal;
+            this.btnDangky.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDangky.ForeColor = System.Drawing.Color.White;
+            this.btnDangky.Location = new System.Drawing.Point(42, 476);
+            this.btnDangky.Name = "btnDangky";
+            this.btnDangky.Size = new System.Drawing.Size(370, 39);
+            this.btnDangky.TabIndex = 13;
+            this.btnDangky.Text = "Đăng ký";
+            this.btnDangky.UseVisualStyleBackColor = false;
+            this.btnDangky.Click += new System.EventHandler(this.btnDangky_Click);
             // 
             // txtSDT
             // 
@@ -141,7 +173,7 @@
             // 
             this.lblLogin.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblLogin.ForeColor = System.Drawing.Color.Teal;
-            this.lblLogin.Location = new System.Drawing.Point(132, 518);
+            this.lblLogin.Location = new System.Drawing.Point(153, 509);
             this.lblLogin.Name = "lblLogin";
             this.lblLogin.Size = new System.Drawing.Size(202, 48);
             this.lblLogin.TabIndex = 7;
@@ -171,39 +203,11 @@
             this.label1.Text = "NET BANKING";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // btnDangky
-            // 
-            this.btnDangky.BackColor = System.Drawing.Color.Teal;
-            this.btnDangky.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDangky.ForeColor = System.Drawing.Color.White;
-            this.btnDangky.Location = new System.Drawing.Point(42, 476);
-            this.btnDangky.Name = "btnDangky";
-            this.btnDangky.Size = new System.Drawing.Size(370, 39);
-            this.btnDangky.TabIndex = 13;
-            this.btnDangky.Text = "Đăng ký";
-            this.btnDangky.UseVisualStyleBackColor = false;
-            this.btnDangky.Click += new System.EventHandler(this.btnDangky_Click);
-            // 
-            // txtMatkhau
-            // 
-            this.txtMatkhau.Location = new System.Drawing.Point(42, 334);
-            this.txtMatkhau.Multiline = true;
-            this.txtMatkhau.Name = "txtMatkhau";
-            this.txtMatkhau.Size = new System.Drawing.Size(370, 33);
-            this.txtMatkhau.TabIndex = 14;
-            // 
-            // txtXacnhanmk
-            // 
-            this.txtXacnhanmk.Location = new System.Drawing.Point(46, 413);
-            this.txtXacnhanmk.Multiline = true;
-            this.txtXacnhanmk.Name = "txtXacnhanmk";
-            this.txtXacnhanmk.Size = new System.Drawing.Size(366, 33);
-            this.txtXacnhanmk.TabIndex = 15;
-            // 
             // FormRegister
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Teal;
             this.ClientSize = new System.Drawing.Size(1131, 605);
             this.Controls.Add(this.panelRegister);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;

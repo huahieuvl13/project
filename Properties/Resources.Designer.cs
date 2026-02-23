@@ -79,5 +79,15 @@ namespace project.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Ảnh_chụp_màn_hình_2026_01_23_1501222 {
+            get {
+                object obj = ResourceManager.GetObject("Ảnh chụp màn hình 2026-01-23 1501222", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
