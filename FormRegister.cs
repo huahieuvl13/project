@@ -76,10 +76,8 @@ namespace project
                 cmd.Parameters.AddWithValue("@Phone", txtSDT.Text);
                 cmd.Parameters.AddWithValue("@Password", txtMatkhau.Text.Trim());
 
-                // LẤY ID VỪA INSERT
                 int userID = Convert.ToInt32(cmd.ExecuteScalar());
 
-                // tạo số tài khoản
                 string accountNumber = GenerateAccountNumber();
 
                 string sqlAccount = @"INSERT INTO Accounts (UserID, AccountNumber, Balance)

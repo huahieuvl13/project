@@ -75,24 +75,18 @@ namespace project
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            // 1️⃣ Lấy dữ liệu từ TextBox
-
             string sdt = txtSDT.Text;
             string matKhau = txtMatkhau.Text;
-
-            // 2️⃣ Kiểm tra nhập đủ chưa
             if (sdt == "" || matKhau == "")
             {
                 MessageBox.Show("Vui lòng nhập đầy đủ SĐT và mật khẩu");
                 return;
             }
 
-            // 3️⃣ Hash mật khẩu
             string connStr = ConfigurationManager
     .ConnectionStrings[".NET BANKING"]
     .ConnectionString;
 
-            // 4️⃣ Kết nối CSDL và kiểm tra đăng nhập
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
