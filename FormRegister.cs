@@ -48,19 +48,7 @@ namespace project
             return "9704" + random.Next(100000000, 999999999).ToString();
 
         }
-        private string HashPassword(string password)
-        {
-            SHA256 sha256 = SHA256.Create();
-            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-
-            StringBuilder builder = new StringBuilder();
-            foreach (byte b in bytes)
-            {
-                builder.Append(b.ToString("x2"));
-            }
-
-            return builder.ToString();
-        }
+        
         private void btnDangky_Click(object sender, EventArgs e)
         {
             if (txtMatkhau.Text != txtXacnhanmk.Text)
@@ -68,8 +56,6 @@ namespace project
                 MessageBox.Show("Mật khẩu xác nhận không khớp");
                 return;
             }
-
-            string passwordHash = HashPassword(txtMatkhau.Text);
 
             string connStr = ConfigurationManager
     .ConnectionStrings[".NET BANKING"]
@@ -88,7 +74,7 @@ namespace project
                 cmd.Parameters.AddWithValue("@FullName", txtFullName.Text);
                 cmd.Parameters.AddWithValue("@CCCD", txtCCCD.Text);
                 cmd.Parameters.AddWithValue("@Phone", txtSDT.Text);
-                cmd.Parameters.AddWithValue("@Password", passwordHash);
+                cmd.Parameters.AddWithValue("@Password", txtMatkhau.Text.Trim());
 
                 // LẤY ID VỪA INSERT
                 int userID = Convert.ToInt32(cmd.ExecuteScalar());

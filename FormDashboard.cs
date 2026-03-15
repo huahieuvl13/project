@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Windows.Forms;
 
-namespace project   // ⚠️ ĐỔI CHO ĐÚNG NAMESPACE CỦA BẠN
+namespace project  
 {
     public partial class FormDashboard : Form
     {
@@ -24,8 +24,8 @@ namespace project   // ⚠️ ĐỔI CHO ĐÚNG NAMESPACE CỦA BẠN
             {
                 conn.Open();
 
-                string sql = @"SELECT TransDate as 'Ngày giao dịch', ToAccount as 'Đến tài khoản',
-                                        Amount as 'Số tiền', Note as 'Mô tả' FROM TRANSACTIONS
+                string sql = @"SELECT TransType as 'Loại giao dịch', TransDate as 'Ngày giao dịch', Amount as 'Số tiền',
+                        ToAccount as 'Số tài khoản', Note as 'Nội dung' FROM TRANSACTIONS
 WHERE UserId = @UserId ORDER BY TransDate desc";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@UserId",_userId);
@@ -47,8 +47,6 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
         }
         private void LoadAccountInfo()
         {
-            MessageBox.Show("_userId = " + _userId); // test, xong xoá
-
             string connStr = ConfigurationManager
                 .ConnectionStrings[".NET BANKING"].ConnectionString;
 
@@ -79,7 +77,7 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
                 }
                 else
                 {
-                    MessageBox.Show("Không tìm thấy tài khoản cho user này");
+                    MessageBox.Show("Không tìm thấy tài khoản cho người dùng này");
                 }
             }
         }
@@ -138,6 +136,7 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
         private void btnXacNhanChuyen_Click(object sender, EventArgs e)
         {
             string stkNhan = txtSoTKNhan.Text;
+            string noidung = txtNoidung.Text;
             decimal soTien;
             if(!decimal.TryParse(txtSoTien.Text, out soTien))
             {
@@ -195,16 +194,17 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
                     cmdCong.ExecuteNonQuery();
 
                     string sqlInsert = @"INSERT INTO TRANSACTIONS (UserId,ToAccount,TransType,Amount,Note,TransDate)
-                        VALUES(@UserId, @ToAccount, N'Chuyển tiền', @Amount, N'Chuyển tiền đến tài khoản ' + @ToAccount,GETDATE())";
+                        VALUES(@UserId, @ToAccount, N'Chuyển tiền', @Amount, @Note, GETDATE())";
                     SqlCommand cmdInsert = new SqlCommand(sqlInsert, conn, tran);
                     cmdInsert.Parameters.AddWithValue("@UserId", _userId);
                     cmdInsert.Parameters.AddWithValue("@ToAccount", stkNhan);
                     cmdInsert.Parameters.AddWithValue("@Amount", soTien);
+                    cmdInsert.Parameters.AddWithValue("@Note", txtNoidung.Text);
 
                     cmdInsert.ExecuteNonQuery();
 
                     tran.Commit();
-                    MessageBox.Show("Đã chuyển tiền thành công cho số tài khoản : " + stkNhan);
+                    MessageBox.Show("Đã chuyển tiền thành công");
                     LoadAccountInfo();
                 }
                 catch(Exception ex)
@@ -264,7 +264,9 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
 
         private void btnDangXuat_Click_1(object sender, EventArgs e)
         {
+            LoginForm lg = new LoginForm();
             this.Close();
+            lg.ShowDialog();
         }
 
         private void lblHienthiSTK_Click(object sender, EventArgs e)

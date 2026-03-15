@@ -42,12 +42,14 @@
             this.lblLogin = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.panelRegister.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelRegister
             // 
             this.panelRegister.BackColor = System.Drawing.Color.White;
+            this.panelRegister.Controls.Add(this.label7);
             this.panelRegister.Controls.Add(this.txtXacnhanmk);
             this.panelRegister.Controls.Add(this.txtMatkhau);
             this.panelRegister.Controls.Add(this.btnDangky);
@@ -62,27 +64,27 @@
             this.panelRegister.Controls.Add(this.label2);
             this.panelRegister.Controls.Add(this.label1);
             this.panelRegister.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panelRegister.Location = new System.Drawing.Point(288, 12);
+            this.panelRegister.Location = new System.Drawing.Point(276, 3);
             this.panelRegister.Name = "panelRegister";
             this.panelRegister.Size = new System.Drawing.Size(455, 566);
             this.panelRegister.TabIndex = 0;
             // 
             // txtXacnhanmk
             // 
-            this.txtXacnhanmk.Location = new System.Drawing.Point(46, 413);
+            this.txtXacnhanmk.Location = new System.Drawing.Point(42, 420);
             this.txtXacnhanmk.Multiline = true;
             this.txtXacnhanmk.Name = "txtXacnhanmk";
             this.txtXacnhanmk.PasswordChar = '*';
-            this.txtXacnhanmk.Size = new System.Drawing.Size(366, 33);
+            this.txtXacnhanmk.Size = new System.Drawing.Size(370, 26);
             this.txtXacnhanmk.TabIndex = 15;
             // 
             // txtMatkhau
             // 
-            this.txtMatkhau.Location = new System.Drawing.Point(42, 334);
+            this.txtMatkhau.Location = new System.Drawing.Point(42, 339);
             this.txtMatkhau.Multiline = true;
             this.txtMatkhau.Name = "txtMatkhau";
             this.txtMatkhau.PasswordChar = '*';
-            this.txtMatkhau.Size = new System.Drawing.Size(370, 33);
+            this.txtMatkhau.Size = new System.Drawing.Size(370, 26);
             this.txtMatkhau.TabIndex = 14;
             // 
             // btnDangky
@@ -90,9 +92,9 @@
             this.btnDangky.BackColor = System.Drawing.Color.Teal;
             this.btnDangky.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDangky.ForeColor = System.Drawing.Color.White;
-            this.btnDangky.Location = new System.Drawing.Point(42, 476);
+            this.btnDangky.Location = new System.Drawing.Point(68, 461);
             this.btnDangky.Name = "btnDangky";
-            this.btnDangky.Size = new System.Drawing.Size(370, 39);
+            this.btnDangky.Size = new System.Drawing.Size(307, 39);
             this.btnDangky.TabIndex = 13;
             this.btnDangky.Text = "Đăng ký";
             this.btnDangky.UseVisualStyleBackColor = false;
@@ -101,79 +103,79 @@
             // txtSDT
             // 
             this.txtSDT.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtSDT.Location = new System.Drawing.Point(42, 236);
+            this.txtSDT.Location = new System.Drawing.Point(42, 265);
             this.txtSDT.Multiline = true;
             this.txtSDT.Name = "txtSDT";
-            this.txtSDT.Size = new System.Drawing.Size(370, 33);
+            this.txtSDT.Size = new System.Drawing.Size(370, 26);
             this.txtSDT.TabIndex = 3;
             // 
             // txtCCCD
             // 
             this.txtCCCD.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCCCD.Location = new System.Drawing.Point(42, 159);
+            this.txtCCCD.Location = new System.Drawing.Point(42, 193);
             this.txtCCCD.Multiline = true;
             this.txtCCCD.Name = "txtCCCD";
-            this.txtCCCD.Size = new System.Drawing.Size(370, 33);
+            this.txtCCCD.Size = new System.Drawing.Size(370, 30);
             this.txtCCCD.TabIndex = 2;
             // 
             // txtFullName
             // 
             this.txtFullName.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtFullName.Location = new System.Drawing.Point(42, 79);
+            this.txtFullName.Location = new System.Drawing.Point(42, 101);
             this.txtFullName.Multiline = true;
             this.txtFullName.Name = "txtFullName";
-            this.txtFullName.Size = new System.Drawing.Size(370, 33);
+            this.txtFullName.Size = new System.Drawing.Size(370, 32);
             this.txtFullName.TabIndex = 0;
             // 
             // label6
             // 
             this.label6.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.Color.Black;
-            this.label6.Location = new System.Drawing.Point(38, 362);
+            this.label6.Location = new System.Drawing.Point(38, 377);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(180, 48);
+            this.label6.Size = new System.Drawing.Size(169, 29);
             this.label6.TabIndex = 12;
-            this.label6.Text = "Nhập lại mật khẩu";
+            this.label6.Text = "Xác nhận mật khẩu:";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label5
             // 
             this.label5.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Black;
-            this.label5.Location = new System.Drawing.Point(38, 272);
+            this.label5.Location = new System.Drawing.Point(38, 310);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(148, 48);
+            this.label5.Size = new System.Drawing.Size(108, 26);
             this.label5.TabIndex = 11;
-            this.label5.Text = "Mật khẩu";
+            this.label5.Text = "Mật khẩu:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label4
             // 
             this.label4.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.Black;
-            this.label4.Location = new System.Drawing.Point(38, 195);
+            this.label4.Location = new System.Drawing.Point(38, 226);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(148, 48);
+            this.label4.Size = new System.Drawing.Size(131, 26);
             this.label4.TabIndex = 10;
-            this.label4.Text = "Số điện thoại";
+            this.label4.Text = "Số điện thoại:";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label3
             // 
             this.label3.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.Black;
-            this.label3.Location = new System.Drawing.Point(38, 115);
+            this.label3.Location = new System.Drawing.Point(38, 147);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 48);
+            this.label3.Size = new System.Drawing.Size(97, 23);
             this.label3.TabIndex = 9;
-            this.label3.Text = "Số CCCD";
+            this.label3.Text = "Số CCCD:";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblLogin
             // 
             this.lblLogin.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblLogin.ForeColor = System.Drawing.Color.Teal;
-            this.lblLogin.Location = new System.Drawing.Point(153, 509);
+            this.lblLogin.Location = new System.Drawing.Point(147, 503);
             this.lblLogin.Name = "lblLogin";
             this.lblLogin.Size = new System.Drawing.Size(202, 48);
             this.lblLogin.TabIndex = 7;
@@ -185,23 +187,33 @@
             // 
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(38, 39);
+            this.label2.Location = new System.Drawing.Point(38, 68);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(95, 48);
+            this.label2.Size = new System.Drawing.Size(97, 30);
             this.label2.TabIndex = 8;
-            this.label2.Text = "Họ và tên";
+            this.label2.Text = "Họ và tên:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label1
             // 
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Teal;
-            this.label1.Location = new System.Drawing.Point(130, 10);
+            this.label1.Location = new System.Drawing.Point(125, -9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(172, 48);
             this.label1.TabIndex = 0;
-            this.label1.Text = "NET BANKING";
+            this.label1.Text = "BANKING";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.ForeColor = System.Drawing.Color.Teal;
+            this.label7.Location = new System.Drawing.Point(129, 39);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(178, 17);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "Đăng ký tài khoản ngân hàng";
             // 
             // FormRegister
             // 
@@ -237,5 +249,6 @@
         private System.Windows.Forms.Button btnDangky;
         private System.Windows.Forms.TextBox txtMatkhau;
         private System.Windows.Forms.TextBox txtXacnhanmk;
+        private System.Windows.Forms.Label label7;
     }
 }

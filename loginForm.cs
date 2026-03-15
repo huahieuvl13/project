@@ -72,19 +72,7 @@ namespace project
             this.Hide();
 
         }
-        private string HashPassword(string password)
-        {
-            SHA256 sha256 = SHA256.Create();
-            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
 
-            StringBuilder builder = new StringBuilder();
-            foreach (byte b in bytes)
-            {
-                builder.Append(b.ToString("x2"));
-            }
-
-            return builder.ToString();
-        }
         private void btnLogin_Click(object sender, EventArgs e)
         {
             // 1️⃣ Lấy dữ liệu từ TextBox
@@ -100,7 +88,6 @@ namespace project
             }
 
             // 3️⃣ Hash mật khẩu
-            string passwordHash = HashPassword(matKhau);
             string connStr = ConfigurationManager
     .ConnectionStrings[".NET BANKING"]
     .ConnectionString;
@@ -116,15 +103,15 @@ namespace project
                        AND PasswordHash = @PasswordHash";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Phone", sdt);
-                cmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                cmd.Parameters.AddWithValue("@Phone", sdt.Trim());
+                cmd.Parameters.AddWithValue("@PasswordHash", matKhau.Trim());
 
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
                     int userId = reader.GetInt32(0);
                     string fullName = reader.GetString(1);
-                    MessageBox.Show($"Đăng nhập thành công! Xin chào {fullName}");
+                    MessageBox.Show("Đăng nhập thành công!");
                     FormDashboard dashboard = new FormDashboard(userId);
                     dashboard.Show();
                     this.Hide();
