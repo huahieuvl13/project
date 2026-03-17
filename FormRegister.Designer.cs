@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panelRegister = new System.Windows.Forms.Panel();
+            this.label7 = new System.Windows.Forms.Label();
             this.txtXacnhanmk = new System.Windows.Forms.TextBox();
             this.txtMatkhau = new System.Windows.Forms.TextBox();
             this.btnDangky = new System.Windows.Forms.Button();
@@ -42,7 +43,6 @@
             this.lblLogin = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.panelRegister.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -68,6 +68,16 @@
             this.panelRegister.Name = "panelRegister";
             this.panelRegister.Size = new System.Drawing.Size(455, 566);
             this.panelRegister.TabIndex = 0;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.ForeColor = System.Drawing.Color.Teal;
+            this.label7.Location = new System.Drawing.Point(139, 39);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(178, 17);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "Đăng ký tài khoản ngân hàng";
             // 
             // txtXacnhanmk
             // 
@@ -204,16 +214,6 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "BANKING";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.ForeColor = System.Drawing.Color.Teal;
-            this.label7.Location = new System.Drawing.Point(129, 39);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(178, 17);
-            this.label7.TabIndex = 16;
-            this.label7.Text = "Đăng ký tài khoản ngân hàng";
             // 
             // FormRegister
             // 

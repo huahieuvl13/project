@@ -61,7 +61,7 @@
             // 
             this.btnLogin.BackColor = System.Drawing.Color.Teal;
             this.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLogin.Location = new System.Drawing.Point(152, 340);
+            this.btnLogin.Location = new System.Drawing.Point(185, 336);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(252, 40);
             this.btnLogin.TabIndex = 4;
@@ -74,7 +74,7 @@
             this.lblRegis.AutoSize = true;
             this.lblRegis.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblRegis.ForeColor = System.Drawing.Color.Teal;
-            this.lblRegis.Location = new System.Drawing.Point(233, 414);
+            this.lblRegis.Location = new System.Drawing.Point(238, 413);
             this.lblRegis.Name = "lblRegis";
             this.lblRegis.Size = new System.Drawing.Size(113, 16);
             this.lblRegis.TabIndex = 3;
@@ -106,7 +106,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.label2.Location = new System.Drawing.Point(158, 91);
+            this.label2.Location = new System.Drawing.Point(182, 79);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(221, 16);
             this.label2.TabIndex = 3;
@@ -116,7 +116,7 @@
             // 
             this.label1.Font = new System.Drawing.Font("Microsoft YaHei UI", 28.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Teal;
-            this.label1.Location = new System.Drawing.Point(141, 20);
+            this.label1.Location = new System.Drawing.Point(160, 20);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(389, 59);
             this.label1.TabIndex = 2;

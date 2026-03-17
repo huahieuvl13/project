@@ -3,13 +3,13 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Drawing;
 using System.Windows.Forms;
-
+using System.Drawing.Drawing2D;
 namespace project  
 {
     public partial class FormDashboard : Form
     {
-        private string _tenNguoiDung;
         private int _userId;
         public FormDashboard(int userId)
         {
@@ -26,7 +26,7 @@ namespace project
 
                 string sql = @"SELECT TransType as 'Loại giao dịch', TransDate as 'Ngày giao dịch', Amount as 'Số tiền',
                         ToAccount as 'Số tài khoản', Note as 'Nội dung' FROM TRANSACTIONS
-WHERE UserId = @UserId ORDER BY TransDate desc";
+WHERE UserId = @UserId  ORDER BY TransDate desc";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@UserId",_userId);
 
@@ -43,6 +43,22 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
                 dgvHistory.Columns["Số tiền"].DefaultCellStyle.Format = "N0";
                 dgvHistory.Columns["Số tiền"].DefaultCellStyle.Alignment =
                     DataGridViewContentAlignment.MiddleRight;
+                dgvHistory.EnableHeadersVisualStyles = false;
+
+                // Header
+                dgvHistory.ColumnHeadersDefaultCellStyle.BackColor = Color.DarkBlue;
+                dgvHistory.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+
+                // Row
+                dgvHistory.DefaultCellStyle.BackColor = Color.White;
+                dgvHistory.DefaultCellStyle.ForeColor = Color.Black;
+
+                // Xen kẽ
+                dgvHistory.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+
+                // Khi chọn
+                dgvHistory.DefaultCellStyle.SelectionBackColor = Color.Orange;
+                dgvHistory.DefaultCellStyle.SelectionForeColor = Color.Black;
             }
         }
         private void LoadAccountInfo()
@@ -126,6 +142,14 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
             HideAllPanels();
             panelAccount.Visible = true;
             LoadAccountInfo();
+            StyleCard();
+            //panelCard.Paint += (s, e2) =>
+            //{
+            //    e2.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            //    Pen pen = new Pen(Color.LightGray, 1);
+            //    e2.Graphics.DrawRectangle(pen, 0, 0, panelCard.Width - 1, panelCard.Height - 1);
+            //};
+
         }
 
         private void panelAccountInfo_Paint(object sender, PaintEventArgs e)
@@ -154,7 +178,7 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
                 try
                 {
                     string sqlBalance = @"SELECT BALANCE FROM Accounts WHERE
-                                        UserId = @Userid";
+                                        UserId = @UserId";
                     SqlCommand cmdBalance = new SqlCommand(sqlBalance, conn, tran);
                     cmdBalance.Parameters.AddWithValue("@UserId", _userId);
                     decimal soDuhienTai = (decimal)cmdBalance.ExecuteScalar();
@@ -223,44 +247,105 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
 
         private void button1_Click(object sender, EventArgs e)
         {
-            decimal soTien;
-            if(!decimal.TryParse(txtSotiennap.Text, out soTien )|| soTien <= 0) {
-                MessageBox.Show("Số tiền nạp không hợp lệ");
+            string maThe = txtMaThe.Text.Trim();
+            string serial = txtSerial.Text.Trim();
+
+            if (string.IsNullOrEmpty(maThe) || string.IsNullOrEmpty(serial))
+            {
+                MessageBox.Show("Vui lòng nhập đầy đủ mã thẻ và serial");
                 return;
             }
+
             string connStr = ConfigurationManager
                 .ConnectionStrings[".NET BANKING"]
                 .ConnectionString;
+
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
                 SqlTransaction tran = conn.BeginTransaction();
+
                 try
                 {
-                    string sqlNap = @"UPDATE ACCOUNTS SET BALANCE = BALANCE + @Amount
-                                    WHERE UserId = @UserId";
+                    // ✅ check format
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(maThe, @"^\d{6}$"))
+                    {
+                        MessageBox.Show("Mã thẻ phải 6 số");
+                        return;
+                    }
+
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(serial, @"^\d{11}$"))
+                    {
+                        MessageBox.Show("Serial phải 11 số");
+                        return;
+                    }
+                    // 🔥 CHẶN TRÙNG NGAY TẠI ĐÂY
+                    try
+                    {
+                        string sqlInsert = @"INSERT INTO UsedCards(CardCode, Serial)
+                 VALUES(@Code, @Serial)";
+
+                        SqlCommand cmdInsert = new SqlCommand(sqlInsert, conn, tran);
+                        cmdInsert.Parameters.AddWithValue("@Code", maThe);
+                        cmdInsert.Parameters.AddWithValue("@Serial", serial);
+
+                        cmdInsert.ExecuteNonQuery(); // ❗ trùng là nổ ở đây
+                    }
+                    catch (SqlException ex)
+                    {
+                        if (ex.Number == 2627)
+                        {
+                            MessageBox.Show("Thẻ đã được sử dụng");
+                            tran.Rollback();
+                            return;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Lỗi: " + ex.Message);
+                            tran.Rollback();
+                            return;
+                        }
+                    }
+
+
+                    // 🎯 random tiền
+                    int amount = int.Parse(cboMenhGia.SelectedItem.ToString());
+
+                    // 💰 cộng tiền
+                    string sqlNap = @"UPDATE Accounts 
+          SET Balance = Balance + @Amount
+          WHERE UserId = @UserId";
+
                     SqlCommand cmdNap = new SqlCommand(sqlNap, conn, tran);
-                    cmdNap.Parameters.AddWithValue("@Amount", soTien);
+                    cmdNap.Parameters.AddWithValue("@Amount", amount);
                     cmdNap.Parameters.AddWithValue("@UserId", _userId);
                     cmdNap.ExecuteNonQuery();
 
-                    string sqlTran = @"INSERT INTO TRANSACTIONS(UserId, ToAccount,TransType,Amount,Note, TransDate)
-                     VALUES (@UserId, NULL, N'Nạp tiền', @Amount, N'Nạp tiền vào tài khoản', GETDATE())";
+
+
+                    string sqlTran = @"INSERT INTO TRANSACTIONS(UserId,ToAccount, TransType, Amount, Note, TransDate)
+                   VALUES (@UserId, NULL, N'Nạp thẻ', @Amount, @Note, GETDATE())";
 
                     SqlCommand cmdTran = new SqlCommand(sqlTran, conn, tran);
                     cmdTran.Parameters.AddWithValue("@UserId", _userId);
-                    cmdTran.Parameters.AddWithValue("@Amount", soTien);
+                    cmdTran.Parameters.AddWithValue("@Amount", amount);
+                    cmdTran.Parameters.AddWithValue("@Note", "Nạp thẻ: " + maThe);
                     cmdTran.ExecuteNonQuery();
+
                     tran.Commit();
-                    MessageBox.Show("Nạp tiền thành công");
+
+                    MessageBox.Show("Nạp thẻ thành công");
                     LoadAccountInfo();
                 }
-                catch{
+                catch (Exception ex)
+                {
                     tran.Rollback();
-                    MessageBox.Show("Nạp tiền thất bại");
+                    MessageBox.Show("Lỗi: " + ex.Message);
                 }
             }
         }
+
+
 
         private void btnDangXuat_Click_1(object sender, EventArgs e)
         {
@@ -272,6 +357,53 @@ WHERE UserId = @UserId ORDER BY TransDate desc";
         private void lblHienthiSTK_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void panel4_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+        private void BoGocPanel(Panel panel, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.StartFigure();
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(panel.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(panel.Width - radius, panel.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, panel.Height - radius, radius, radius, 90, 90);
+            path.CloseFigure();
+
+            panel.Region = new Region(path);
+        }
+        private void StyleCard()
+        {
+            // ❌ Tắt viền cũ
+            panelCard.BorderStyle = BorderStyle.None;
+
+            // 🎨 Màu + padding
+            panelCard.BackColor = Color.White;
+            panelCard.Padding = new Padding(25);
+
+            // 🟫 Vẽ viền đẹp
+            panelCard.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                Pen pen = new Pen(Color.FromArgb(229, 231, 235), 1);
+                e.Graphics.DrawRectangle(pen, 0, 0, panelCard.Width - 1, panelCard.Height - 1);
+            };
+             
+            // 🔵 Bo góc
+            BoGocPanel(panelCard, 20);
+
+            // 🌫️ Shadow (giả)
+            Panel shadow = new Panel();
+            shadow.BackColor = Color.FromArgb(240, 240, 240);
+            shadow.Size = panelCard.Size;
+            shadow.Location = new Point(panelCard.Left + 5, panelCard.Top + 5);
+
+            this.Controls.Add(shadow);
+            shadow.SendToBack();
+            panelCard.BringToFront();
         }
     }
 }

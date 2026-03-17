@@ -112,6 +112,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="database.sql" />
+    <None Include="Resources\17507002.png" />
+    <None Include="Resources\z7630505145190_bdd2a02c1120cc7521f5ab6013dd2b50.jpg" />
+    <None Include="Resources\file %281%29.png" />
+    <None Include="Resources\file.png" />
+    <None Include="Resources\passbook1.png" />
+    <None Include="Resources\transference.png" />
+    <None Include="Resources\money.png" />
+    <None Include="Resources\passbook.png" />
+    <None Include="Resources\bank %281%29.png" />
+    <None Include="Resources\bank.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
