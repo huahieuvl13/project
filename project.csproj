@@ -112,6 +112,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="database.sql" />
+    <None Include="Resources\icons8-reset-302.png" />
+    <None Include="Resources\icons8-reset-301.png" />
     <None Include="Resources\icons8-filter-24 %281%29.png" />
     <None Include="Resources\icons8-reset-30.png" />
     <None Include="Resources\icons8-filter.gif" />

@@ -142,8 +142,8 @@
   <data name="bank (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\bank (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="mobile-banking" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\mobile-banking.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="bank" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\bank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="icons8-banking-48" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icons8-banking-48.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -166,6 +166,9 @@
   <data name="icons8-phone-number-50" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icons8-phone-number-50.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="icons8-filter-24 (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icons8-filter-24 (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -178,8 +181,8 @@
   <data name="passbook" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\passbook.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="bank" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\bank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="mobile-banking" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mobile-banking.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="icons8-reset-30" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icons8-reset-30.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -199,8 +202,8 @@
   <data name="1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho2.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="transaction-history" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\transaction-history.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="icons8-badge-50" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icons8-badge-50.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="icons8-banking-50" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icons8-banking-50.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -229,10 +232,13 @@
   <data name="z7630505145190_bdd2a02c1120cc7521f5ab6013dd2b50" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\z7630505145190_bdd2a02c1120cc7521f5ab6013dd2b50.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="icons8-badge-50" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icons8-badge-50.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="transaction-history" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\transaction-history.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="icons8-filter-24 (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icons8-filter-24 (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="icons8-reset-301" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icons8-reset-301.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icons8-reset-302" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icons8-reset-302.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace project
 {
-    public partial class LoginForm : Form
+    public partial class    LoginForm : Form
     {
 
         public LoginForm()
@@ -23,7 +23,7 @@ namespace project
         private void label2_Click_1(object sender, EventArgs e)
         {
             FormRegister frm = new FormRegister();
-            frm.ShowDialog();
+            frm.Show();
             this.Hide();
 
         }
@@ -68,8 +68,6 @@ namespace project
                 {
                     MessageBox.Show("Đăng nhập thất bại! Vui lòng kiểm tra lại SĐT và mật khẩu.");
                 }
-
-
             }
         }
         private void txtUser_KeyPress(object sender, KeyPressEventArgs e)

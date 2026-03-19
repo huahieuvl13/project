@@ -19,12 +19,6 @@ namespace project
         {
             InitializeComponent();
         }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void lblLogin_Click(object sender, EventArgs e)
         {
             LoginForm login = new LoginForm();
@@ -32,28 +26,21 @@ namespace project
             this.Hide();
         }
 
-
-        private void btnRegister_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtPass_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-        private string GenerateAccountNumber()
-        {
-            Random random = new Random();
-            return "9704" + random.Next(100000000, 999999999).ToString();
-
-        }
-        
         private void btnDangky_Click(object sender, EventArgs e)
         {
             if (txtMatkhau.Text != txtXacnhanmk.Text)
             {
                 MessageBox.Show("Mật khẩu xác nhận không khớp");
+                return;
+            }
+            if (txtCCCD.Text.Length != 12 || !txtCCCD.Text.All(char.IsDigit))
+            {
+                MessageBox.Show("Số CCCD phải bao gồm đúng 12 chữ số!", "Lỗi nhập liệu");
+                return;
+            }
+           if (txtSDT.Text.Length != 10 || !txtSDT.Text.All(char.IsDigit))
+            {
+                MessageBox.Show("Số điện thoại phải bao gồm đúng 10 chữ số!", "Lỗi nhập liệu");
                 return;
             }
 
@@ -91,7 +78,27 @@ namespace project
 
             MessageBox.Show("Đăng ký thành công! Hãy quay về trang đăng nhập");
         }
+        private string GenerateAccountNumber()
+        {
+            Random random = new Random();
+            return "9704" + random.Next(100000000, 999999999).ToString();
 
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRegister_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtPass_TextChanged(object sender, EventArgs e)
+        {
+
+        }
         private void panelRegister_Paint(object sender, PaintEventArgs e)
         {
 

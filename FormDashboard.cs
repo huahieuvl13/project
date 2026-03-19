@@ -37,33 +37,10 @@ namespace project
                 DataTable dt = new DataTable();
                 Da.Fill(dt);
 
-                // --- SỬA LẠI ĐOẠN NÀY ---
                 bs.DataSource = dt;
-                dgvHistory.DataSource = bs; // Gán qua bs để lọc được dữ liệu
+                dgvHistory.DataSource = bs;
 
-                dgvHistory.Dock = DockStyle.Fill;
-                dgvHistory.SendToBack(); // Đẩy xuống dưới để nhường chỗ cho thanh tìm kiếm
-                                         // ------------------------
-
-                // Thiết lập giao diện
-                dgvHistory.ColumnHeadersHeight = 45;
-                dgvHistory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-                dgvHistory.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
-
-                if (dgvHistory.Columns["Số tiền"] != null)
-                {
-                    dgvHistory.Columns["Số tiền"].DefaultCellStyle.Format = "N0";
-                    dgvHistory.Columns["Số tiền"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                }
-
-                dgvHistory.EnableHeadersVisualStyles = false;
-                dgvHistory.ColumnHeadersDefaultCellStyle.BackColor = Color.DarkBlue;
-                dgvHistory.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-                dgvHistory.DefaultCellStyle.BackColor = Color.White;
-                dgvHistory.DefaultCellStyle.ForeColor = Color.Black;
-                dgvHistory.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-                dgvHistory.DefaultCellStyle.SelectionBackColor = Color.Orange;
-                dgvHistory.DefaultCellStyle.SelectionForeColor = Color.Black;
+                StyleDataGridView();
             }
         }
         private void LoadAccountInfo()
@@ -121,18 +98,14 @@ namespace project
         {
             HideAllPanels();
             panelTransfer.Visible = true;
+            LoadAvailableBalance();
         }
 
         private void btnLichSu_Click(object sender, EventArgs e)
         {
             HideAllPanels();
-            panelHistory.Visible = true; 
+            panelHistory.Visible = true;
             LoadHistory();
-        }
-
-        private void btnDangXuat_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         private void btnChuyenTien_Click_1(object sender, EventArgs e)
@@ -163,7 +136,7 @@ namespace project
             string stkNhan = txtSoTKNhan.Text;
             string noidung = txtNoidung.Text;
             decimal soTien;
-            if(!decimal.TryParse(txtSoTien.Text, out soTien))
+            if (!decimal.TryParse(txtSoTien.Text, out soTien))
             {
                 MessageBox.Show("Số tiền không hợp lệ");
                 return;
@@ -195,9 +168,9 @@ namespace project
                     SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, tran);
                     cmdCheck.Parameters.AddWithValue("@STK", stkNhan);
                     object toUserIdObject = cmdCheck.ExecuteScalar();
-                    if(toUserIdObject == null)
+                    if (toUserIdObject == null)
                     {
-                        MessageBox.Show ("Số tài khoản nhận không tồn tại");
+                        MessageBox.Show("Số tài khoản nhận không tồn tại");
                         tran.Rollback();
                         return;
                     }
@@ -210,7 +183,7 @@ namespace project
                     cmdTru.Parameters.AddWithValue("@Amount", soTien);
                     cmdTru.Parameters.AddWithValue("@UserId", _userId);
                     cmdTru.ExecuteNonQuery();
-                    
+
                     string sqlCong = @"UPDATE ACCOUNTS SET BALANCE = BALANCE + @AMOUNT
                                         WHERE AccountNumber = @STK";
                     SqlCommand cmdCong = new SqlCommand(sqlCong, conn, tran);
@@ -231,8 +204,9 @@ namespace project
                     tran.Commit();
                     MessageBox.Show("Đã chuyển tiền thành công");
                     LoadAccountInfo();
+                    LoadAvailableBalance();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     tran.Rollback();
                     MessageBox.Show("Chuyển tiền thất bại" + ex.Message);
@@ -244,6 +218,7 @@ namespace project
         {
             HideAllPanels();
             panelNaptien.Visible = true;
+            LoadAvailableBalance();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -264,7 +239,7 @@ namespace project
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                SqlTransaction tran = conn.BeginTransaction();
+                SqlTransaction tran = conn.BeginTransaction();  
 
                 try
                 {
@@ -290,7 +265,7 @@ namespace project
                         cmdInsert.Parameters.AddWithValue("@Code", maThe);
                         cmdInsert.Parameters.AddWithValue("@Serial", serial);
 
-                        cmdInsert.ExecuteNonQuery(); 
+                        cmdInsert.ExecuteNonQuery();
                     }
                     catch (SqlException ex)
                     {
@@ -341,14 +316,103 @@ namespace project
                 }
             }
         }
+        private void button1_Click_2(object sender, EventArgs e)
+        {
+            if (bs.DataSource == null) return;
 
+            bs.Filter = "";
+            txtTimKiem.Clear();
 
+            dtpTungay.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            dtpDenngay.Value = DateTime.Now;
+            MessageBox.Show("Đã làm mới");
+        }
 
         private void btnDangXuat_Click_1(object sender, EventArgs e)
         {
-            LoginForm lg = new LoginForm();
-            this.Close();
-            lg.ShowDialog();
+            DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất", "Xác nhận", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                this.Hide();
+                LoginForm lg = new LoginForm();
+                lg.ShowDialog();
+                this.Close();
+            }
+        }
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            if (bs.DataSource == null) return;
+
+            DateTime tuNgay = dtpTungay.Value.Date;
+
+            DateTime denNgay = dtpDenngay.Value.Date.AddDays(1).AddSeconds(-1);
+            string filter = string.Format("[Ngày giao dịch] >= #{0}# AND [Ngày giao dịch] <= #{1}#",
+                                          tuNgay.ToString("MM/dd/yyyy"),
+                                          denNgay.ToString("MM/dd/yyyy"));
+
+            if (!string.IsNullOrEmpty(txtTimKiem.Text))
+            {
+                string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
+                filter += string.Format(" AND ([Nội dung] LIKE '%{0}%' OR [Loại giao dịch] LIKE '%{0}%')", keyword);
+            }
+
+            bs.Filter = filter;
+            if (bs.Count == 0)
+            {
+                MessageBox.Show("Không có giao dịch nào trong khoảng thời gian này.", "Thông báo");
+            }
+        }
+        private void LoadAvailableBalance()
+        {
+            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string sql = "SELECT Balance FROM Accounts WHERE UserId = @UserId";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@UserId", _userId);
+                    object result = cmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        decimal balance = Convert.ToDecimal(result);
+                        lblSoduKhadung.Text = "Số tiền khả dụng: " + balance.ToString("N0") + " VND";
+                    }
+                    else
+                    {
+                        lblSoduKhadung.Text = "0 VND";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi lấy số dư: " + ex.Message);
+                }
+            }
+        }
+        private void txtTimKiem_TextChanged(object sender, EventArgs e)
+        {
+            //if (bs.DataSource == null) return;
+
+            //string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
+
+            //if (string.IsNullOrEmpty(keyword))
+            //{
+            //    // 3. Nếu xóa hết chữ trong ô tìm kiếm, hiện lại toàn bộ lịch sử
+            //    bs.Filter = "";
+            //}
+            //else
+            //{
+            //    // 4. Thực hiện lọc ngay lập tức
+            //    // Lưu ý: Tên [Loại giao dịch], [Nội dung] phải viết y hệt như trong câu lệnh SQL SELECT ở hàm LoadHistory
+            //    string filter = string.Format("([Loại giao dịch] LIKE '%{0}%') OR ([Nội dung] LIKE '%{0}%') OR ([Số tài khoản] LIKE '%{0}%')", keyword);
+            //    bs.Filter = filter;
+            //}
         }
 
         private void lblHienthiSTK_Click(object sender, EventArgs e)
@@ -359,6 +423,45 @@ namespace project
         private void panel4_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void txtSerial_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panelMenu_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+        private void StyleDataGridView()
+        {
+            dgvHistory.Dock = DockStyle.Fill;
+            dgvHistory.SendToBack();
+            dgvHistory.ColumnHeadersHeight = 45;
+            dgvHistory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvHistory.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
+            dgvHistory.EnableHeadersVisualStyles = false;
+
+            dgvHistory.ColumnHeadersDefaultCellStyle.BackColor = Color.DarkBlue;
+            dgvHistory.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvHistory.DefaultCellStyle.BackColor = Color.White;
+            dgvHistory.DefaultCellStyle.ForeColor = Color.Black;
+            dgvHistory.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+            dgvHistory.DefaultCellStyle.SelectionBackColor = Color.Orange;
+            dgvHistory.DefaultCellStyle.SelectionForeColor = Color.Black;
+
+            if (dgvHistory.Columns["Số tiền"] != null)
+            {
+                dgvHistory.Columns["Số tiền"].DefaultCellStyle.Format = "N0";
+                dgvHistory.Columns["Số tiền"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            }
         }
         private GraphicsPath GetRoundedRect(Rectangle rect, int radius)
         {
@@ -381,7 +484,6 @@ namespace project
 
             int radius = 20;
 
-            // 🔥 Bo góc thật
             panel.Resize += (s, e) =>
             {
                 using (GraphicsPath path = GetRoundedRect(panel.ClientRectangle, radius))
@@ -400,19 +502,18 @@ namespace project
                 using (GraphicsPath path = GetRoundedRect(rect, radius))
                 using (GraphicsPath shadowPath = GetRoundedRect(shadowRect, radius))
                 {
-                    // Shadow
+
                     using (Brush shadowBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
                     {
                         e.Graphics.FillPath(shadowBrush, shadowPath);
                     }
 
-                    // Background
                     using (Brush bgBrush = new SolidBrush(Color.White))
                     {
                         e.Graphics.FillPath(bgBrush, path);
                     }
 
-                    // Border
+
                     using (Pen pen = new Pen(Color.FromArgb(230, 230, 230), 1))
                     {
                         e.Graphics.DrawPath(pen, path);
@@ -420,71 +521,5 @@ namespace project
                 }
             };
         }
-        private void txtSerial_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            // 1. Kiểm tra xem dgvHistory đã có dữ liệu chưa
-            if (bs.DataSource == null) return;
-
-            // 2. Lấy giá trị ngày từ DateTimePicker
-            // .Date để lấy lúc 00:00:00
-            DateTime tuNgay = dateTimePicker1.Value.Date;
-
-            // .AddDays(1).AddSeconds(-1) để lấy đến cuối ngày (23:59:59)
-            DateTime denNgay = dateTimePicker2.Value.Date.AddDays(1).AddSeconds(-1);
-
-            // 3. Tạo câu lệnh lọc (Filter)
-            // Lưu ý: Dùng dấu # bao quanh ngày tháng và định dạng MM/dd/yyyy để chuẩn SQL nội bộ
-            string filter = string.Format("[Ngày giao dịch] >= #{0}# AND [Ngày giao dịch] <= #{1}#",
-                                          tuNgay.ToString("MM/dd/yyyy"),
-                                          denNgay.ToString("MM/dd/yyyy"));
-
-            // 4. Kết hợp với ô Tìm kiếm (nếu có nhập chữ trong txtTimKiem)
-            if (!string.IsNullOrEmpty(txtTimKiem.Text))
-            {
-                string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
-                filter += string.Format(" AND ([Nội dung] LIKE '%{0}%' OR [Loại giao dịch] LIKE '%{0}%')", keyword);
-            }
-
-            // 5. Thực thi lọc
-            bs.Filter = filter;
-
-            // Thông báo nếu không thấy kết quả
-            if (bs.Count == 0)
-            {
-                MessageBox.Show("Không có giao dịch nào trong khoảng thời gian này.", "Thông báo");
-            }
-        }
-
-        private void txtTimKiem_TextChanged(object sender, EventArgs e)
-        {
-            // 1. Kiểm tra xem BindingSource đã có dữ liệu chưa để tránh lỗi
-            if (bs.DataSource == null) return;
-
-            // 2. Lấy từ khóa từ chính ô TextBox này
-            string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
-
-            if (string.IsNullOrEmpty(keyword))
-            {
-                // 3. Nếu xóa hết chữ trong ô tìm kiếm, hiện lại toàn bộ lịch sử
-                bs.Filter = "";
-            }
-            else
-            {
-                // 4. Thực hiện lọc ngay lập tức
-                // Lưu ý: Tên [Loại giao dịch], [Nội dung] phải viết y hệt như trong câu lệnh SQL SELECT ở hàm LoadHistory
-                string filter = string.Format("([Loại giao dịch] LIKE '%{0}%') OR ([Nội dung] LIKE '%{0}%') OR ([Số tài khoản] LIKE '%{0}%')", keyword);
-                bs.Filter = filter;
-            }
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
     }
- }
+    }
