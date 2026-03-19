@@ -20,7 +20,65 @@ namespace project
         {
             InitializeComponent();
         }
+        private void label2_Click_1(object sender, EventArgs e)
+        {
+            FormRegister frm = new FormRegister();
+            frm.ShowDialog();
+            this.Hide();
 
+        }
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            string sdt = txtSDT.Text;
+            string matKhau = txtMatkhau.Text;
+            if (sdt == "" || matKhau == "")
+            {
+                MessageBox.Show("Vui lòng nhập đầy đủ SĐT và mật khẩu");
+                return;
+            }
+
+            string connStr = ConfigurationManager
+    .ConnectionStrings[".NET BANKING"]
+    .ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string sql = @"SELECT ID,FullName 
+                       FROM Users
+                       WHERE PhoneNumber = @Phone
+                       AND PasswordHash = @Password";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Phone", sdt.Trim());
+                cmd.Parameters.AddWithValue("@Password", matKhau.Trim());
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    int userId = reader.GetInt32(0);
+                    string fullName = reader.GetString(1);
+                    MessageBox.Show("Đăng nhập thành công!");
+                    FormDashboard dashboard = new FormDashboard(userId);
+                    dashboard.Show();
+                    this.Hide();
+                }
+                else
+                {
+                    MessageBox.Show("Đăng nhập thất bại! Vui lòng kiểm tra lại SĐT và mật khẩu.");
+                }
+
+
+            }
+        }
+        private void txtUser_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsWhiteSpace(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
@@ -65,70 +123,11 @@ namespace project
 
         }
 
-        private void label2_Click_1(object sender, EventArgs e)
-        {
-            FormRegister frm = new FormRegister();
-            frm.ShowDialog();
-            this.Hide();
 
-        }
 
-        private void btnLogin_Click(object sender, EventArgs e)
-        {
-            string sdt = txtSDT.Text;
-            string matKhau = txtMatkhau.Text;
-            if (sdt == "" || matKhau == "")
-            {
-                MessageBox.Show("Vui lòng nhập đầy đủ SĐT và mật khẩu");
-                return;
-            }
-
-            string connStr = ConfigurationManager
-    .ConnectionStrings[".NET BANKING"]
-    .ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-
-                string sql = @"SELECT ID,FullName 
-                       FROM Users
-                       WHERE PhoneNumber = @Phone
-                       AND PasswordHash = @PasswordHash";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Phone", sdt.Trim());
-                cmd.Parameters.AddWithValue("@PasswordHash", matKhau.Trim());
-
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    int userId = reader.GetInt32(0);
-                    string fullName = reader.GetString(1);
-                    MessageBox.Show("Đăng nhập thành công!");
-                    FormDashboard dashboard = new FormDashboard(userId);
-                    dashboard.Show();
-                    this.Hide();
-                }
-                else
-                {
-                    MessageBox.Show("Đăng nhập thất bại! Vui lòng kiểm tra lại SĐT và mật khẩu.");
-                }
-
-  
-            }
-        }
         private void txtUser_TextChanged(object sender, EventArgs e)
         {
 
-        }
-
-        private void txtUser_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (char.IsWhiteSpace(e.KeyChar))
-            {
-                e.Handled = true;
-            }
         }
 
         private void label5_Click(object sender, EventArgs e)
@@ -137,6 +136,11 @@ namespace project
         }
 
         private void txtMatkhau_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
 
         }

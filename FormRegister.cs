@@ -91,5 +91,10 @@ namespace project
 
             MessageBox.Show("Đăng ký thành công! Hãy quay về trang đăng nhập");
         }
+
+        private void panelRegister_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

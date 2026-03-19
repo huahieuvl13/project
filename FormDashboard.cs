@@ -4,13 +4,15 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Windows.Forms;
 namespace project  
 {
     public partial class FormDashboard : Form
     {
         private int _userId;
+        BindingSource bs = new BindingSource();
         public FormDashboard(int userId)
         {
             InitializeComponent();
@@ -24,39 +26,42 @@ namespace project
             {
                 conn.Open();
 
-                string sql = @"SELECT TransType as 'Loại giao dịch', TransDate as 'Ngày giao dịch', Amount as 'Số tiền',
-                        ToAccount as 'Số tài khoản', Note as 'Nội dung' FROM TRANSACTIONS
-WHERE UserId = @UserId  ORDER BY TransDate desc";
+                string sql = @"SELECT TransType as 'Loại giao dịch', TransDate as 'Ngày giao dịch', 
+                       Amount as 'Số tiền', ToAccount as 'Số tài khoản', Note as 'Nội dung' 
+                       FROM TRANSACTIONS WHERE UserId = @UserId ORDER BY TransDate desc";
+
                 SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@UserId",_userId);
+                cmd.Parameters.AddWithValue("@UserId", _userId);
 
                 SqlDataAdapter Da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 Da.Fill(dt);
-                dgvHistory.DataSource = dt;
+
+                // --- SỬA LẠI ĐOẠN NÀY ---
+                bs.DataSource = dt;
+                dgvHistory.DataSource = bs; // Gán qua bs để lọc được dữ liệu
+
+                dgvHistory.Dock = DockStyle.Fill;
+                dgvHistory.SendToBack(); // Đẩy xuống dưới để nhường chỗ cho thanh tìm kiếm
+                                         // ------------------------
+
+                // Thiết lập giao diện
                 dgvHistory.ColumnHeadersHeight = 45;
-                dgvHistory.ColumnHeadersHeightSizeMode =
-                    DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+                dgvHistory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+                dgvHistory.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
-                dgvHistory.ColumnHeadersDefaultCellStyle.WrapMode =
-                    DataGridViewTriState.False;
-                dgvHistory.Columns["Số tiền"].DefaultCellStyle.Format = "N0";
-                dgvHistory.Columns["Số tiền"].DefaultCellStyle.Alignment =
-                    DataGridViewContentAlignment.MiddleRight;
+                if (dgvHistory.Columns["Số tiền"] != null)
+                {
+                    dgvHistory.Columns["Số tiền"].DefaultCellStyle.Format = "N0";
+                    dgvHistory.Columns["Số tiền"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
+
                 dgvHistory.EnableHeadersVisualStyles = false;
-
-                // Header
                 dgvHistory.ColumnHeadersDefaultCellStyle.BackColor = Color.DarkBlue;
                 dgvHistory.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-
-                // Row
                 dgvHistory.DefaultCellStyle.BackColor = Color.White;
                 dgvHistory.DefaultCellStyle.ForeColor = Color.Black;
-
-                // Xen kẽ
                 dgvHistory.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
-
-                // Khi chọn
                 dgvHistory.DefaultCellStyle.SelectionBackColor = Color.Orange;
                 dgvHistory.DefaultCellStyle.SelectionForeColor = Color.Black;
             }
@@ -142,13 +147,9 @@ WHERE UserId = @UserId  ORDER BY TransDate desc";
             HideAllPanels();
             panelAccount.Visible = true;
             LoadAccountInfo();
-            StyleCard();
-            //panelCard.Paint += (s, e2) =>
-            //{
-            //    e2.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            //    Pen pen = new Pen(Color.LightGray, 1);
-            //    e2.Graphics.DrawRectangle(pen, 0, 0, panelCard.Width - 1, panelCard.Height - 1);
-            //};
+            StyleCard(panelCard);
+            StyleCard(panelChuyen);
+            StyleCard(panelNap);
 
         }
 
@@ -267,19 +268,19 @@ WHERE UserId = @UserId  ORDER BY TransDate desc";
 
                 try
                 {
-                    // ✅ check format
-                    if (!System.Text.RegularExpressions.Regex.IsMatch(maThe, @"^\d{6}$"))
+                    if (maThe.Length != 6 || !maThe.All(char.IsDigit))
                     {
-                        MessageBox.Show("Mã thẻ phải 6 số");
+                        MessageBox.Show("Mã thẻ phải gồm đúng 6 chữ số");
+                        tran.Rollback();
                         return;
                     }
 
-                    if (!System.Text.RegularExpressions.Regex.IsMatch(serial, @"^\d{11}$"))
+                    if (serial.Length != 11 || !serial.All(char.IsDigit))
                     {
-                        MessageBox.Show("Serial phải 11 số");
+                        MessageBox.Show("Serial phải gồm đúng 11 chữ số");
+                        tran.Rollback();
                         return;
                     }
-                    // 🔥 CHẶN TRÙNG NGAY TẠI ĐÂY
                     try
                     {
                         string sqlInsert = @"INSERT INTO UsedCards(CardCode, Serial)
@@ -289,7 +290,7 @@ WHERE UserId = @UserId  ORDER BY TransDate desc";
                         cmdInsert.Parameters.AddWithValue("@Code", maThe);
                         cmdInsert.Parameters.AddWithValue("@Serial", serial);
 
-                        cmdInsert.ExecuteNonQuery(); // ❗ trùng là nổ ở đây
+                        cmdInsert.ExecuteNonQuery(); 
                     }
                     catch (SqlException ex)
                     {
@@ -306,12 +307,8 @@ WHERE UserId = @UserId  ORDER BY TransDate desc";
                             return;
                         }
                     }
-
-
-                    // 🎯 random tiền
                     int amount = int.Parse(cboMenhGia.SelectedItem.ToString());
 
-                    // 💰 cộng tiền
                     string sqlNap = @"UPDATE Accounts 
           SET Balance = Balance + @Amount
           WHERE UserId = @UserId";
@@ -363,47 +360,131 @@ WHERE UserId = @UserId  ORDER BY TransDate desc";
         {
 
         }
-        private void BoGocPanel(Panel panel, int radius)
+        private GraphicsPath GetRoundedRect(Rectangle rect, int radius)
         {
             GraphicsPath path = new GraphicsPath();
-            path.StartFigure();
-            path.AddArc(0, 0, radius, radius, 180, 90);
-            path.AddArc(panel.Width - radius, 0, radius, radius, 270, 90);
-            path.AddArc(panel.Width - radius, panel.Height - radius, radius, radius, 0, 90);
-            path.AddArc(0, panel.Height - radius, radius, radius, 90, 90);
+            int d = radius * 2;
+
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
             path.CloseFigure();
 
-            panel.Region = new Region(path);
+            return path;
         }
-        private void StyleCard()
+        private void StyleCard(Panel panel)
         {
-            // ❌ Tắt viền cũ
-            panelCard.BorderStyle = BorderStyle.None;
+            panel.BorderStyle = BorderStyle.None;
+            panel.BackColor = Color.White;
+            panel.Padding = new Padding(25);
 
-            // 🎨 Màu + padding
-            panelCard.BackColor = Color.White;
-            panelCard.Padding = new Padding(25);
+            int radius = 20;
 
-            // 🟫 Vẽ viền đẹp
-            panelCard.Paint += (s, e) =>
+            // 🔥 Bo góc thật
+            panel.Resize += (s, e) =>
+            {
+                using (GraphicsPath path = GetRoundedRect(panel.ClientRectangle, radius))
+                {
+                    panel.Region = new Region(path);
+                }
+            };
+
+            panel.Paint += (s, e) =>
             {
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                Pen pen = new Pen(Color.FromArgb(229, 231, 235), 1);
-                e.Graphics.DrawRectangle(pen, 0, 0, panelCard.Width - 1, panelCard.Height - 1);
+
+                Rectangle rect = new Rectangle(0, 0, panel.Width - 1, panel.Height - 1);
+                Rectangle shadowRect = new Rectangle(3, 3, panel.Width - 1, panel.Height - 1);
+
+                using (GraphicsPath path = GetRoundedRect(rect, radius))
+                using (GraphicsPath shadowPath = GetRoundedRect(shadowRect, radius))
+                {
+                    // Shadow
+                    using (Brush shadowBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
+                    {
+                        e.Graphics.FillPath(shadowBrush, shadowPath);
+                    }
+
+                    // Background
+                    using (Brush bgBrush = new SolidBrush(Color.White))
+                    {
+                        e.Graphics.FillPath(bgBrush, path);
+                    }
+
+                    // Border
+                    using (Pen pen = new Pen(Color.FromArgb(230, 230, 230), 1))
+                    {
+                        e.Graphics.DrawPath(pen, path);
+                    }
+                }
             };
-             
-            // 🔵 Bo góc
-            BoGocPanel(panelCard, 20);
+        }
+        private void txtSerial_TextChanged(object sender, EventArgs e)
+        {
 
-            // 🌫️ Shadow (giả)
-            Panel shadow = new Panel();
-            shadow.BackColor = Color.FromArgb(240, 240, 240);
-            shadow.Size = panelCard.Size;
-            shadow.Location = new Point(panelCard.Left + 5, panelCard.Top + 5);
+        }
 
-            this.Controls.Add(shadow);
-            shadow.SendToBack();
-            panelCard.BringToFront();
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            // 1. Kiểm tra xem dgvHistory đã có dữ liệu chưa
+            if (bs.DataSource == null) return;
+
+            // 2. Lấy giá trị ngày từ DateTimePicker
+            // .Date để lấy lúc 00:00:00
+            DateTime tuNgay = dateTimePicker1.Value.Date;
+
+            // .AddDays(1).AddSeconds(-1) để lấy đến cuối ngày (23:59:59)
+            DateTime denNgay = dateTimePicker2.Value.Date.AddDays(1).AddSeconds(-1);
+
+            // 3. Tạo câu lệnh lọc (Filter)
+            // Lưu ý: Dùng dấu # bao quanh ngày tháng và định dạng MM/dd/yyyy để chuẩn SQL nội bộ
+            string filter = string.Format("[Ngày giao dịch] >= #{0}# AND [Ngày giao dịch] <= #{1}#",
+                                          tuNgay.ToString("MM/dd/yyyy"),
+                                          denNgay.ToString("MM/dd/yyyy"));
+
+            // 4. Kết hợp với ô Tìm kiếm (nếu có nhập chữ trong txtTimKiem)
+            if (!string.IsNullOrEmpty(txtTimKiem.Text))
+            {
+                string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
+                filter += string.Format(" AND ([Nội dung] LIKE '%{0}%' OR [Loại giao dịch] LIKE '%{0}%')", keyword);
+            }
+
+            // 5. Thực thi lọc
+            bs.Filter = filter;
+
+            // Thông báo nếu không thấy kết quả
+            if (bs.Count == 0)
+            {
+                MessageBox.Show("Không có giao dịch nào trong khoảng thời gian này.", "Thông báo");
+            }
+        }
+
+        private void txtTimKiem_TextChanged(object sender, EventArgs e)
+        {
+            // 1. Kiểm tra xem BindingSource đã có dữ liệu chưa để tránh lỗi
+            if (bs.DataSource == null) return;
+
+            // 2. Lấy từ khóa từ chính ô TextBox này
+            string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
+
+            if (string.IsNullOrEmpty(keyword))
+            {
+                // 3. Nếu xóa hết chữ trong ô tìm kiếm, hiện lại toàn bộ lịch sử
+                bs.Filter = "";
+            }
+            else
+            {
+                // 4. Thực hiện lọc ngay lập tức
+                // Lưu ý: Tên [Loại giao dịch], [Nội dung] phải viết y hệt như trong câu lệnh SQL SELECT ở hàm LoadHistory
+                string filter = string.Format("([Loại giao dịch] LIKE '%{0}%') OR ([Nội dung] LIKE '%{0}%') OR ([Số tài khoản] LIKE '%{0}%')", keyword);
+                bs.Filter = filter;
+            }
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
         }
     }
-}
+ }

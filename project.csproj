@@ -112,6 +112,32 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="database.sql" />
+    <None Include="Resources\icons8-filter-24 %281%29.png" />
+    <None Include="Resources\icons8-reset-30.png" />
+    <None Include="Resources\icons8-filter.gif" />
+    <None Include="Resources\icons8-banking-50.png" />
+    <None Include="Resources\icons8-banking-48.png" />
+    <None Include="Resources\icons8-left-2-24.png" />
+    <None Include="Resources\icons8-password-50.png" />
+    <None Include="Resources\icons8-phone-number-50.png" />
+    <None Include="Resources\icons8-male-user-301.png" />
+    <None Include="Resources\icons8-badge-501.png" />
+    <None Include="Resources\icons8-badge-50.png" />
+    <None Include="Resources\user.png" />
+    <None Include="Resources\icons8-plus-16.png" />
+    <None Include="Resources\icons8-lock-30.png" />
+    <None Include="Resources\icons8-male-user-30.png" />
+    <None Include="Resources\1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho2.jpg" />
+    <None Include="Resources\1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho1.jpg" />
+    <None Include="Resources\Ảnh chụp màn hình 2026-03-18 190130.png" />
+    <None Include="Resources\1000_F_118033377_JKQA3UFE4joJ1k67dNoSmmoG4EsQf9Ho.jpg" />
+    <None Include="Resources\transaction-history.png" />
+    <None Include="Resources\log-out.png" />
+    <None Include="Resources\save-money.png" />
+    <None Include="Resources\mobile-banking.png" />
+    <None Include="Resources\z7633751643199_688e878eaf2791ee5d686dfaeed299f2.jpg" />
+    <None Include="Resources\z7633748109985_f52a16a6eb481ef569cd64bcd46c192d.jpg" />
+    <None Include="Resources\z7630505145190_bdd2a02c1120cc7521f5ab6013dd2b501.jpg" />
     <None Include="Resources\17507002.png" />
     <None Include="Resources\z7630505145190_bdd2a02c1120cc7521f5ab6013dd2b50.jpg" />
     <None Include="Resources\file %281%29.png" />
