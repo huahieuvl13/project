@@ -20,7 +20,6 @@ namespace project
             this.Load += FormDashboard_Load;
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-
             panelAccount.GetType()
                 .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .SetValue(panelAccount, true, null);
@@ -35,9 +34,9 @@ namespace project
             StyleCard(panelRutBox);
             panelNutTim.GetType()
     .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-    .SetValue(panelNutTim, true, null); // Sửa panelAccount thành panelNutTim ở đây
+    .SetValue(panelNutTim, true, null);
 
-            StyleSearchBar(panelNutTim); // Dùng hàm Style riêng cho thanh tìm kiếm
+            StyleSearchBar(panelNutTim); 
         }
         private void FormDashboard_Load(object sender, EventArgs e)
         {
@@ -53,30 +52,6 @@ namespace project
             StyleCard(panelRutBox);
             StyleCard(panelAccountInfo);
             StyleCard(panelNap);
-        }
-        private void LoadHistory()
-        {
-            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-
-                string sql = @"SELECT TransType as 'Loại giao dịch', TransDate as 'Ngày giao dịch', 
-                       Amount as 'Số tiền', ToAccount as 'Số tài khoản', Note as 'Nội dung' 
-                       FROM TRANSACTIONS WHERE UserId = @UserId ORDER BY TransDate desc";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@UserId", _userId);
-
-                SqlDataAdapter Da = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                Da.Fill(dt);
-
-                bs.DataSource = dt;
-                dgvHistory.DataSource = bs;
-
-                StyleDataGridView();
-            }
         }
         private void LoadAccountInfo()
         {
@@ -194,6 +169,93 @@ namespace project
                 {
                     tran.Rollback();
                     MessageBox.Show("Chuyển tiền thất bại" + ex.Message);
+                }
+            }
+        }
+        private void LoadHistory()
+        {
+            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string sql = @"SELECT TransType as 'Loại giao dịch', TransDate as 'Ngày giao dịch', 
+                       Amount as 'Số tiền', ToAccount as 'Số tài khoản', Note as 'Nội dung' 
+                       FROM TRANSACTIONS WHERE UserId = @UserId ORDER BY TransDate desc";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@UserId", _userId);
+
+                SqlDataAdapter Da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                Da.Fill(dt);
+
+                bs.DataSource = dt;
+                dgvHistory.DataSource = bs;
+
+                StyleDataGridView();
+            }
+        }
+        private void btnRut_Click(object sender, EventArgs e)
+        {
+            decimal soTienRut;
+            if (!decimal.TryParse(txtTienrut.Text, out soTienRut) || soTienRut <= 0)
+            {
+                MessageBox.Show("Vui lòng nhập số tiền rút hợp lệ!", "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (soTienRut < 50000)
+            {
+                MessageBox.Show("Số tiền rút tối thiểu là 50,000 VND!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlTransaction tran = conn.BeginTransaction();
+
+                try
+                {
+                    string sqlCheck = "SELECT Balance FROM Accounts WHERE UserId = @UserId";
+                    SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, tran);
+                    cmdCheck.Parameters.AddWithValue("@UserId", _userId);
+                    decimal soDuHienTai = (decimal)cmdCheck.ExecuteScalar();
+                    decimal soDuToiThieu = 50000;
+                    if (soDuHienTai - soTienRut < soDuToiThieu)
+                    {
+                        MessageBox.Show("Số dư không đủ để thực hiện giao dịch (cần giữ lại tối thiểu 50k)!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        tran.Rollback();
+                        return;
+                    }
+                    string sqlUpdate = "UPDATE Accounts SET Balance = Balance - @Amount WHERE UserId = @UserId";
+                    SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, tran);
+                    cmdUpdate.Parameters.AddWithValue("@Amount", soTienRut);
+                    cmdUpdate.Parameters.AddWithValue("@UserId", _userId);
+                    cmdUpdate.ExecuteNonQuery();
+
+                    string sqlLog = @"INSERT INTO TRANSACTIONS (UserId, ToAccount, TransType, Amount, Note, TransDate) 
+                              VALUES (@UserId, NULL, N'Rút tiền', @Amount, @Note, GETDATE())";
+                    SqlCommand cmdLog = new SqlCommand(sqlLog, conn, tran);
+                    cmdLog.Parameters.AddWithValue("@UserId", _userId);
+                    cmdLog.Parameters.AddWithValue("@Amount", soTienRut);
+                    cmdLog.Parameters.Add("@Note", rtb.Text);
+                    cmdLog.ExecuteNonQuery();
+
+                    tran.Commit();
+                    MessageBox.Show($"Đã rút thành công {soTienRut:N0} VND!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    LoadAccountInfo();
+                    LoadAvailableBalance();
+                    rtb.Clear();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    MessageBox.Show("Giao dịch thất bại! Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -322,69 +384,7 @@ namespace project
             panelRut.Visible = true;
         }
 
-        private void btnRut_Click(object sender, EventArgs e)
-        {
-            decimal soTienRut;
-            if (!decimal.TryParse(txtTienrut.Text, out soTienRut) || soTienRut <= 0)
-            {
-                MessageBox.Show("Vui lòng nhập số tiền rút hợp lệ!", "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (soTienRut < 50000)
-            {
-                MessageBox.Show("Số tiền rút tối thiểu là 50,000 VND!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlTransaction tran = conn.BeginTransaction();
-
-                try
-                {
-                    string sqlCheck = "SELECT Balance FROM Accounts WHERE UserId = @UserId";
-                    SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, tran);
-                    cmdCheck.Parameters.AddWithValue("@UserId", _userId);
-                    decimal soDuHienTai = (decimal)cmdCheck.ExecuteScalar();
-                    decimal soDuToiThieu = 50000;
-                    if (soDuHienTai - soTienRut < soDuToiThieu)
-                    {
-                        MessageBox.Show("Số dư không đủ để thực hiện giao dịch (cần giữ lại tối thiểu 50k)!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        tran.Rollback();
-                        return;
-                    }
-                    string sqlUpdate = "UPDATE Accounts SET Balance = Balance - @Amount WHERE UserId = @UserId";
-                    SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, tran);
-                    cmdUpdate.Parameters.AddWithValue("@Amount", soTienRut);
-                    cmdUpdate.Parameters.AddWithValue("@UserId", _userId);
-                    cmdUpdate.ExecuteNonQuery();
-
-                    string sqlLog = @"INSERT INTO TRANSACTIONS (UserId, ToAccount, TransType, Amount, Note, TransDate) 
-                              VALUES (@UserId, NULL, N'Rút tiền', @Amount, @Note, GETDATE())";
-                    SqlCommand cmdLog = new SqlCommand(sqlLog, conn, tran);
-                    cmdLog.Parameters.AddWithValue("@UserId", _userId);
-                    cmdLog.Parameters.AddWithValue("@Amount", soTienRut);
-                    cmdLog.Parameters.Add("@Note", rtb.Text);
-                    cmdLog.ExecuteNonQuery();
-
-                    tran.Commit();
-                    MessageBox.Show($"Đã rút thành công {soTienRut:N0} VND!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    LoadAccountInfo();
-                    LoadAvailableBalance();
-                    rtb.Clear();
-                }
-                catch (Exception ex)
-                {
-                    tran.Rollback();
-                    MessageBox.Show("Giao dịch thất bại! Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
+        
         private void button1_Click_1(object sender, EventArgs e)
         {
             if (bs.DataSource == null) return;
@@ -545,13 +545,11 @@ namespace project
 
                 using (GraphicsPath path = GetRoundedRect(rect, radius))
                 {
-                    // ĐỔI MÀU TẠI ĐÂY: Dùng Color.MintCream có sẵn trong hệ thống
                     using (SolidBrush bgBrush = new SolidBrush(Color.Teal))
                     {
                         e.Graphics.FillPath(bgBrush, path);
                     }
 
-                    // Vẽ viền (nên chọn màu đậm hơn Mint Cream một chút để thấy rõ khối)
                     using (Pen pen = new Pen(Color.FromArgb(200, 225, 225), 1))
                     {
                         e.Graphics.DrawPath(pen, path);

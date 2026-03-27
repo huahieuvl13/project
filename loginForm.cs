@@ -142,5 +142,24 @@ namespace project
         {
 
         }
+
+
+
+        private void panel1_Paint_2(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+            ForgotPasswordForm fpf = new ForgotPasswordForm();
+            fpf.Show();
+            this.Hide();
+        }
     }
 }
