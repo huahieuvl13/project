@@ -48,7 +48,7 @@ namespace project
                 string sql = @"SELECT ID,FullName 
                        FROM Users
                        WHERE PhoneNumber = @Phone
-                       AND PasswordHash = @Password";
+                       AND Password = @Password";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Phone", sdt.Trim());

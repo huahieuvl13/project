@@ -35,12 +35,12 @@ namespace project
             }
             if (txtCCCD.Text.Length != 12 || !txtCCCD.Text.All(char.IsDigit))
             {
-                MessageBox.Show("Số CCCD phải bao gồm đúng 12 chữ số!", "Lỗi nhập liệu");
+                MessageBox.Show("Số CCCD phải bao gồm đúng 12 chữ số!", "Thông báo");
                 return;
             }
            if (txtSDT.Text.Length != 10 || !txtSDT.Text.All(char.IsDigit))
             {
-                MessageBox.Show("Số điện thoại phải bao gồm đúng 10 chữ số!", "Lỗi nhập liệu");
+                MessageBox.Show("Số điện thoại phải bao gồm đúng 10 chữ số!","Thông báo");
                 return;
             }
 
@@ -53,7 +53,7 @@ namespace project
                 conn.Open();
 
                 string sql = @"INSERT INTO Users
-    (FullName, CCCD, PhoneNumber, PasswordHash)
+    (FullName, CCCD, PhoneNumber, Password)
     OUTPUT INSERTED.Id
     VALUES (@FullName, @CCCD, @Phone, @Password)";
 

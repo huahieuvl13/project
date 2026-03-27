@@ -18,6 +18,41 @@ namespace project
             InitializeComponent();
             _userId = userId;
             this.Load += FormDashboard_Load;
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+
+            panelAccount.GetType()
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .SetValue(panelAccount, true, null);
+            StyleCard(panelAccountInfo);
+            panelNap.GetType()
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .SetValue(panelAccount, true, null);
+            StyleCard(panelNapBox);
+            panelRutBox.GetType()
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .SetValue(panelAccount, true, null);
+            StyleCard(panelRutBox);
+            panelNutTim.GetType()
+    .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+    .SetValue(panelNutTim, true, null); // Sửa panelAccount thành panelNutTim ở đây
+
+            StyleSearchBar(panelNutTim); // Dùng hàm Style riêng cho thanh tìm kiếm
+        }
+        private void FormDashboard_Load(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelAccount.Visible = true;
+            LoadAccountInfo();
+            StyleCard(panelCard);
+            StyleCard(panelChuyen);
+            StyleCard(panelNap);
+            StyleCard(panel7);
+            StyleCard(panelTransferBox);
+            StyleCard(panelNapBox);
+            StyleCard(panelRutBox);
+            StyleCard(panelAccountInfo);
+            StyleCard(panelNap);
         }
         private void LoadHistory()
         {
@@ -80,56 +115,6 @@ namespace project
             }
         }
 
-        private void HideAllPanels()
-        {
-            panelAccount.Visible = false;
-            panelTransfer.Visible = false;
-            panelHistory.Visible = false;
-            panelNaptien.Visible = false;
-        }
-
-        private void btnTaiKhoan_Click(object sender, EventArgs e)
-        {
-            HideAllPanels();
-            panelAccount.Visible = true;
-        }
-
-        private void btnChuyenTien_Click(object sender, EventArgs e)
-        {
-            HideAllPanels();
-            panelTransfer.Visible = true;
-            LoadAvailableBalance();
-        }
-
-        private void btnLichSu_Click(object sender, EventArgs e)
-        {
-            HideAllPanels();
-            panelHistory.Visible = true;
-            LoadHistory();
-        }
-
-        private void btnChuyenTien_Click_1(object sender, EventArgs e)
-        {
-            HideAllPanels();
-            panelTransfer.Visible = true;
-        }
-
-
-        private void FormDashboard_Load(object sender, EventArgs e)
-        {
-            HideAllPanels();
-            panelAccount.Visible = true;
-            LoadAccountInfo();
-            StyleCard(panelCard);
-            StyleCard(panelChuyen);
-            StyleCard(panelNap);
-
-        }
-
-        private void panelAccountInfo_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
 
         private void btnXacNhanChuyen_Click(object sender, EventArgs e)
         {
@@ -174,7 +159,6 @@ namespace project
                         tran.Rollback();
                         return;
                     }
-                    object toUserId = (int)toUserIdObject;
 
                     string sqlTru = @"UPDATE ACCOUNTS 
                                         SET BALANCE = BALANCE - @Amount
@@ -213,14 +197,6 @@ namespace project
                 }
             }
         }
-
-        private void btnNapTien_Click(object sender, EventArgs e)
-        {
-            HideAllPanels();
-            panelNaptien.Visible = true;
-            LoadAvailableBalance();
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
             string maThe = txtMaThe.Text.Trim();
@@ -340,6 +316,75 @@ namespace project
                 this.Close();
             }
         }
+        private void btnRuttien_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelRut.Visible = true;
+        }
+
+        private void btnRut_Click(object sender, EventArgs e)
+        {
+            decimal soTienRut;
+            if (!decimal.TryParse(txtTienrut.Text, out soTienRut) || soTienRut <= 0)
+            {
+                MessageBox.Show("Vui lòng nhập số tiền rút hợp lệ!", "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (soTienRut < 50000)
+            {
+                MessageBox.Show("Số tiền rút tối thiểu là 50,000 VND!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string connStr = ConfigurationManager.ConnectionStrings[".NET BANKING"].ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                SqlTransaction tran = conn.BeginTransaction();
+
+                try
+                {
+                    string sqlCheck = "SELECT Balance FROM Accounts WHERE UserId = @UserId";
+                    SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, tran);
+                    cmdCheck.Parameters.AddWithValue("@UserId", _userId);
+                    decimal soDuHienTai = (decimal)cmdCheck.ExecuteScalar();
+                    decimal soDuToiThieu = 50000;
+                    if (soDuHienTai - soTienRut < soDuToiThieu)
+                    {
+                        MessageBox.Show("Số dư không đủ để thực hiện giao dịch (cần giữ lại tối thiểu 50k)!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        tran.Rollback();
+                        return;
+                    }
+                    string sqlUpdate = "UPDATE Accounts SET Balance = Balance - @Amount WHERE UserId = @UserId";
+                    SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, tran);
+                    cmdUpdate.Parameters.AddWithValue("@Amount", soTienRut);
+                    cmdUpdate.Parameters.AddWithValue("@UserId", _userId);
+                    cmdUpdate.ExecuteNonQuery();
+
+                    string sqlLog = @"INSERT INTO TRANSACTIONS (UserId, ToAccount, TransType, Amount, Note, TransDate) 
+                              VALUES (@UserId, NULL, N'Rút tiền', @Amount, @Note, GETDATE())";
+                    SqlCommand cmdLog = new SqlCommand(sqlLog, conn, tran);
+                    cmdLog.Parameters.AddWithValue("@UserId", _userId);
+                    cmdLog.Parameters.AddWithValue("@Amount", soTienRut);
+                    cmdLog.Parameters.Add("@Note", rtb.Text);
+                    cmdLog.ExecuteNonQuery();
+
+                    tran.Commit();
+                    MessageBox.Show($"Đã rút thành công {soTienRut:N0} VND!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    LoadAccountInfo();
+                    LoadAvailableBalance();
+                    rtb.Clear();
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    MessageBox.Show("Giao dịch thất bại! Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
         private void button1_Click_1(object sender, EventArgs e)
         {
             if (bs.DataSource == null) return;
@@ -395,24 +440,53 @@ namespace project
                 }
             }
         }
+
+        private void HideAllPanels()
+        {
+            panelAccount.Visible = false;
+            panelTransfer.Visible = false;
+            panelHistory.Visible = false;
+            panelNaptien.Visible = false;
+            panelRut.Visible = false;
+        }
+
+        private void btnTaiKhoan_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelAccount.Visible = true;
+        }
+
+        private void btnChuyenTien_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelTransfer.Visible = true;
+            LoadAvailableBalance();
+        }
+
+        private void btnLichSu_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelHistory.Visible = true;
+            LoadHistory();
+        }
+
+        private void btnChuyenTien_Click_1(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelTransfer.Visible = true;
+        }
+
+
+        
+        private void btnNapTien_Click(object sender, EventArgs e)
+        {
+            HideAllPanels();
+            panelNaptien.Visible = true;
+            LoadAvailableBalance();
+        }
         private void txtTimKiem_TextChanged(object sender, EventArgs e)
         {
-            //if (bs.DataSource == null) return;
-
-            //string keyword = txtTimKiem.Text.Trim().Replace("'", "''");
-
-            //if (string.IsNullOrEmpty(keyword))
-            //{
-            //    // 3. Nếu xóa hết chữ trong ô tìm kiếm, hiện lại toàn bộ lịch sử
-            //    bs.Filter = "";
-            //}
-            //else
-            //{
-            //    // 4. Thực hiện lọc ngay lập tức
-            //    // Lưu ý: Tên [Loại giao dịch], [Nội dung] phải viết y hệt như trong câu lệnh SQL SELECT ở hàm LoadHistory
-            //    string filter = string.Format("([Loại giao dịch] LIKE '%{0}%') OR ([Nội dung] LIKE '%{0}%') OR ([Số tài khoản] LIKE '%{0}%')", keyword);
-            //    bs.Filter = filter;
-            //}
+            
         }
 
         private void lblHienthiSTK_Click(object sender, EventArgs e)
@@ -435,10 +509,56 @@ namespace project
         {
 
         }
+        private void panelAccountInfo_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
 
         private void panelMenu_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+        
+        
+
+        private void panel7_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void StyleSearchBar(Panel panel)
+        {
+            panel.BorderStyle = BorderStyle.None;
+            if (panel.Parent != null) panel.BackColor = panel.Parent.BackColor;
+
+            int radius = 15;
+
+            panel.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+                Rectangle rect = new Rectangle(0, 0, panel.Width - 1, panel.Height - 1);
+
+                using (GraphicsPath path = GetRoundedRect(rect, radius))
+                {
+                    // ĐỔI MÀU TẠI ĐÂY: Dùng Color.MintCream có sẵn trong hệ thống
+                    using (SolidBrush bgBrush = new SolidBrush(Color.Teal))
+                    {
+                        e.Graphics.FillPath(bgBrush, path);
+                    }
+
+                    // Vẽ viền (nên chọn màu đậm hơn Mint Cream một chút để thấy rõ khối)
+                    using (Pen pen = new Pen(Color.FromArgb(200, 225, 225), 1))
+                    {
+                        e.Graphics.DrawPath(pen, path);
+                    }
+                }
+            };
+            panel.Invalidate();
         }
         private void StyleDataGridView()
         {
@@ -520,6 +640,9 @@ namespace project
                     }
                 }
             };
+            panel.Resize += (s, e) => panel.Invalidate();
         }
+
     }
-    }
+}
+    
